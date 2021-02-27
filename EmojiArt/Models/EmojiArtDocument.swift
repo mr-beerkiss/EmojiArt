@@ -10,7 +10,28 @@ import SwiftUI
 class EmojiArtDocument: ObservableObject {
   static let palette: String = "⭐️🌧🍎🌎🥨⚾️"
   
-  @Published private var emojiArt: EmojiArt = EmojiArt()
+  @Published private var emojiArt: EmojiArt {
+    didSet {
+      UserDefaults.standard.set(emojiArt.json, forKey: EmojiArtDocument.untitledDocumentKey )
+    }
+    /*
+     // In the lecture demo, he states that `didSet` and `@Published` do not work well together
+     // and at the time it was known issue. It appears to have been fixed, but I've included
+     // the workaround here for interest sake. You call the `send() function on the special field
+     // `objectWillChange` available inside `willSet`. You also need to remove the `@Published`
+     // property wrapper
+     willSet {
+      objectWillChange.send()
+     }
+     */
+  }
+  
+  private static let untitledDocumentKey = "EmojiArtDocument.Untitled"
+  
+  init() {
+    emojiArt = EmojiArt(json: UserDefaults.standard.data(forKey: EmojiArtDocument.untitledDocumentKey)) ?? EmojiArt()
+    fetchBackgroundImageData()
+  }
   
   @Published private(set) var backgroundImage: UIImage?
   
